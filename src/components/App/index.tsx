@@ -22,7 +22,7 @@ const App = () => {
   const diffCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const getImageUrl = (label: ImageLabels) => {
-    return `/assets/images/co${currentCoId}-${label}.png`;
+    return `/snapshot-diff/assets/images/co${currentCoId}-${label}.png`;
   };
 
   useEffect(() => {
