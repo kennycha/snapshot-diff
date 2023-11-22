@@ -5,7 +5,7 @@
   width: 100%;
   max-width: 1024px;
   margin: 0 auto;
-  padding: 32px 0;
+  padding: 32px 0 0;
 }
 
 .buttons {
@@ -29,6 +29,17 @@
 
 .actionButton {
   width: 100px;
+}
+
+.thresholdWrapper {
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+  width: 100%;
+}
+
+.threshold {
+  width: 400px;
 }
 
 .imageCards {
