@@ -49,6 +49,15 @@
 }
 
 .diffVisualizer {
+  position: relative;
   display: flex;
   justify-content: center;
+}
+
+.empty {
+  width: 100%;
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
 }

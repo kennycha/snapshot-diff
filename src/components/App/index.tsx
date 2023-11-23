@@ -8,8 +8,8 @@ import {
 } from "../../constants";
 import ImageCard from "../ImageCard";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
-import Loading from "../Loading";
 import DiffVisualizer from "../DiffVisualizer";
+import Empty from "../Empty";
 
 const cx = classNames.bind(styles);
 
@@ -17,9 +17,8 @@ const App = () => {
   // kenny: CameraOrientation -> co
   const [currentCoId, setCurrentCoId] = useState(CAMERA_ORIENTATION_IDS[0]);
   const [threshold, setThreshold] = useState(0.15);
-  const [isLoading, setIsLoading] = useState(false);
-  const [prevCtx, setPrevCtx] = useState<CanvasRenderingContext2D>();
-  const [currentCtx, setCurrentCtx] = useState<CanvasRenderingContext2D>();
+  const [isEmpty, setIsEmpty] = useState(true);
+  const [imgCtx, setImgCtx] = useState<CanvasRenderingContext2D>();
 
   const prevImgRef = useRef<HTMLImageElement>(null);
   const currentImgRef = useRef<HTMLImageElement>(null);
@@ -34,27 +33,26 @@ const App = () => {
     canvas.height = IMAGE_SIZES.to.height;
   };
 
+  const getImageData = (
+    ctx: CanvasRenderingContext2D,
+    img: HTMLImageElement
+  ) => {
+    // prettier-ignore
+    ctx.drawImage(img, 0, 0, IMAGE_SIZES.from.width, IMAGE_SIZES.from.height, 0, 0, IMAGE_SIZES.to.width, IMAGE_SIZES.to.height);
+
+    return ctx.getImageData(0, 0, IMAGE_SIZES.to.width, IMAGE_SIZES.to.height);
+  };
+
   useEffect(() => {
-    if (!prevCtx) {
+    if (!imgCtx) {
       const canvas = document.createElement("canvas");
       adjustCanvasSize(canvas);
       const context = canvas.getContext("2d");
       if (!context) return;
 
-      setPrevCtx(context);
+      setImgCtx(context);
     }
-  }, [prevCtx]);
-
-  useEffect(() => {
-    if (!currentCtx) {
-      const canvas = document.createElement("canvas");
-      adjustCanvasSize(canvas);
-      const context = canvas.getContext("2d");
-      if (!context) return;
-
-      setCurrentCtx(context);
-    }
-  }, [currentCtx]);
+  }, [imgCtx]);
 
   useEffect(() => {
     if (diffCanvasRef.current) {
@@ -69,47 +67,13 @@ const App = () => {
   const handleActionButtonClick = () => {
     if (!prevImgRef.current || !currentImgRef.current || !diffCanvasRef.current)
       return;
-    if (!prevCtx || !currentCtx) return;
-
-    setIsLoading(true);
+    if (!imgCtx) return;
 
     const prevImg = prevImgRef.current;
-    prevCtx.drawImage(
-      prevImg,
-      0,
-      0,
-      IMAGE_SIZES.from.width,
-      IMAGE_SIZES.from.height,
-      0,
-      0,
-      IMAGE_SIZES.to.width,
-      IMAGE_SIZES.to.height
-    );
-    const prevImageData = prevCtx.getImageData(
-      0,
-      0,
-      IMAGE_SIZES.to.width,
-      IMAGE_SIZES.to.height
-    );
+    const prevImageData = getImageData(imgCtx, prevImg);
 
     const currentImg = currentImgRef.current;
-    currentCtx.drawImage(
-      currentImg,
-      0,
-      0,
-      IMAGE_SIZES.from.width,
-      IMAGE_SIZES.from.height,
-      0,
-      0,
-      IMAGE_SIZES.to.width,
-      IMAGE_SIZES.to.height
-    );
-    const currentImageData = currentCtx.getImageData(
-      0,
-      0,
-      IMAGE_SIZES.to.width,
-      IMAGE_SIZES.to.height
-    );
+    const currentImageData = getImageData(imgCtx, currentImg);
 
     const diffCtx = diffCanvasRef.current.getContext("2d");
     if (!diffCtx) return;
@@ -128,7 +92,7 @@ const App = () => {
     );
     diffCtx.putImageData(diff, 0, 0);
 
-    setIsLoading(false);
+    setIsEmpty(false);
   };
 
   const handleRangeInputChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -142,7 +106,6 @@ const App = () => {
           {CAMERA_ORIENTATION_IDS.map((id) => (
             <li key={id} className={cx("coId")}>
               <button
-                disabled={isLoading}
                 className={cx("coButton")}
                 onClick={createCoButtonClickHandler(id)}
               >
@@ -186,7 +149,12 @@ const App = () => {
       </div>
       <hr />
       <div className={cx("diffVisualizer")}>
-        {isLoading ? <Loading /> : <DiffVisualizer ref={diffCanvasRef} />}
+        {isEmpty && (
+          <div className={cx("empty")}>
+            <Empty />
+          </div>
+        )}
+        <DiffVisualizer ref={diffCanvasRef} />
       </div>
     </div>
   );
