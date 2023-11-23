@@ -69,12 +69,6 @@ const App = () => {
     }
   }, [imgCtx]);
 
-  useEffect(() => {
-    if (diffCanvasRef.current) {
-      adjustCanvasSize(diffCanvasRef.current);
-    }
-  }, []);
-
   const createCoButtonClickHandler = (id: number) => () => {
     setCurrentCoId(id);
   };
