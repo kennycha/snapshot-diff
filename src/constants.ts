@@ -6,11 +6,11 @@ export enum ImageLabels {
 }
 
 export const IMAGE_SIZES = {
-  from: {
+  source: {
     width: 1920,
     height: 1080,
   },
-  to: {
+  destination: {
     width: 480,
     height: 270,
   },

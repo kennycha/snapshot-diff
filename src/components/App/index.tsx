@@ -1,15 +1,16 @@
+import { useEffect, useRef, useState } from "react";
 import pixelmatch from "pixelmatch";
 import classNames from "classnames/bind";
 import styles from "./index.module.scss";
+import ImageCard from "../ImageCard";
+import DiffVisualizer from "../DiffVisualizer";
+import Empty from "../Empty";
 import {
   CAMERA_ORIENTATION_IDS,
   IMAGE_SIZES,
   ImageLabels,
 } from "../../constants";
-import ImageCard from "../ImageCard";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
-import DiffVisualizer from "../DiffVisualizer";
-import Empty from "../Empty";
+import type { ChangeEvent } from "react";
 
 const cx = classNames.bind(styles);
 
@@ -29,18 +30,32 @@ const App = () => {
   };
 
   const adjustCanvasSize = (canvas: HTMLCanvasElement) => {
-    canvas.width = IMAGE_SIZES.to.width;
-    canvas.height = IMAGE_SIZES.to.height;
+    canvas.width = IMAGE_SIZES.destination.width;
+    canvas.height = IMAGE_SIZES.destination.height;
   };
 
   const getImageData = (
     ctx: CanvasRenderingContext2D,
     img: HTMLImageElement
   ) => {
-    // prettier-ignore
-    ctx.drawImage(img, 0, 0, IMAGE_SIZES.from.width, IMAGE_SIZES.from.height, 0, 0, IMAGE_SIZES.to.width, IMAGE_SIZES.to.height);
+    ctx.drawImage(
+      img,
+      0,
+      0,
+      IMAGE_SIZES.source.width,
+      IMAGE_SIZES.source.height,
+      0,
+      0,
+      IMAGE_SIZES.destination.width,
+      IMAGE_SIZES.destination.height
+    );
 
-    return ctx.getImageData(0, 0, IMAGE_SIZES.to.width, IMAGE_SIZES.to.height);
+    return ctx.getImageData(
+      0,
+      0,
+      IMAGE_SIZES.destination.width,
+      IMAGE_SIZES.destination.height
+    );
   };
 
   useEffect(() => {
@@ -79,15 +94,15 @@ const App = () => {
     if (!diffCtx) return;
 
     const diff = diffCtx.createImageData(
-      IMAGE_SIZES.to.width,
-      IMAGE_SIZES.to.height
+      IMAGE_SIZES.destination.width,
+      IMAGE_SIZES.destination.height
     );
     pixelmatch(
       prevImageData.data,
       currentImageData.data,
       diff.data,
-      IMAGE_SIZES.to.width,
-      IMAGE_SIZES.to.height,
+      IMAGE_SIZES.destination.width,
+      IMAGE_SIZES.destination.height,
       { threshold, diffColor: [216, 0, 50], diffColorAlt: [7, 102, 173] }
     );
     diffCtx.putImageData(diff, 0, 0);
