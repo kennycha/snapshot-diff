@@ -29,11 +29,15 @@ const App = () => {
     return `/snapshot-diff/assets/images/co${currentCoId}-${label}.png`;
   };
 
+  const adjustCanvasSize = (canvas: HTMLCanvasElement) => {
+    canvas.width = IMAGE_SIZES.to.width;
+    canvas.height = IMAGE_SIZES.to.height;
+  };
+
   useEffect(() => {
     if (!prevCtx) {
       const canvas = document.createElement("canvas");
-      canvas.width = IMAGE_SIZES.to.width;
-      canvas.height = IMAGE_SIZES.to.height;
+      adjustCanvasSize(canvas);
       const context = canvas.getContext("2d");
       if (!context) return;
 
@@ -44,8 +48,7 @@ const App = () => {
   useEffect(() => {
     if (!currentCtx) {
       const canvas = document.createElement("canvas");
-      canvas.width = IMAGE_SIZES.to.width;
-      canvas.height = IMAGE_SIZES.to.height;
+      adjustCanvasSize(canvas);
       const context = canvas.getContext("2d");
       if (!context) return;
 
@@ -55,8 +58,7 @@ const App = () => {
 
   useEffect(() => {
     if (diffCanvasRef.current) {
-      diffCanvasRef.current.width = IMAGE_SIZES.to.width;
-      diffCanvasRef.current.height = IMAGE_SIZES.to.height;
+      adjustCanvasSize(diffCanvasRef.current);
     }
   }, []);
 
@@ -122,7 +124,7 @@ const App = () => {
       diff.data,
       IMAGE_SIZES.to.width,
       IMAGE_SIZES.to.height,
-      { threshold, diffColor: [216, 0, 50] }
+      { threshold, diffColor: [216, 0, 50], diffColorAlt: [7, 102, 173] }
     );
     diffCtx.putImageData(diff, 0, 0);
 
@@ -172,11 +174,13 @@ const App = () => {
         <ImageCard
           ref={prevImgRef}
           label="Previous"
+          labelColor="red"
           imageUrl={getImageUrl(ImageLabels.previous)}
         />
         <ImageCard
           ref={currentImgRef}
           label="Current"
+          labelColor="blue"
           imageUrl={getImageUrl(ImageLabels.current)}
         />
       </div>

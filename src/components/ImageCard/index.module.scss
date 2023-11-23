@@ -9,6 +9,14 @@
 
 .label {
   font-weight: bold;
+
+  &.red {
+    color: rgb(216, 0, 50);
+  }
+
+  &.blue {
+    color: rgb(7, 102, 173);
+  }
 }
 
 .image {

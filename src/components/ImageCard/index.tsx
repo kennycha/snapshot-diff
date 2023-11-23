@@ -6,14 +6,15 @@ const cx = classNames.bind(styles);
 
 type Props = {
   label: string;
+  labelColor: "red" | "blue";
   imageUrl: string;
 };
 
 const ImageCard = forwardRef<HTMLImageElement, Props>(
-  ({ label, imageUrl }, ref) => {
+  ({ label, labelColor, imageUrl }, ref) => {
     return (
       <div className={cx("container")}>
-        <p className={cx("label")}>{label}</p>
+        <p className={cx("label", labelColor)}>{label}</p>
         <img
           ref={ref}
           src={imageUrl}
