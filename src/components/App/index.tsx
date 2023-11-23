@@ -1,7 +1,11 @@
 import pixelmatch from "pixelmatch";
 import classNames from "classnames/bind";
 import styles from "./index.module.scss";
-import { CAMERA_ORIENTATION_IDS, DEFAULT_IMAGE_SIZE, ImageLabels } from "../../constants";
+import {
+  CAMERA_ORIENTATION_IDS,
+  IMAGE_SIZES,
+  ImageLabels,
+} from "../../constants";
 import ImageCard from "../ImageCard";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import Loading from "../Loading";
@@ -28,8 +32,8 @@ const App = () => {
   useEffect(() => {
     if (!prevCtx) {
       const canvas = document.createElement("canvas");
-      canvas.width = DEFAULT_IMAGE_SIZE.width;
-      canvas.height = DEFAULT_IMAGE_SIZE.height;
+      canvas.width = IMAGE_SIZES.to.width;
+      canvas.height = IMAGE_SIZES.to.height;
       const context = canvas.getContext("2d");
       if (!context) return;
 
@@ -40,8 +44,8 @@ const App = () => {
   useEffect(() => {
     if (!currentCtx) {
       const canvas = document.createElement("canvas");
-      canvas.width = DEFAULT_IMAGE_SIZE.width;
-      canvas.height = DEFAULT_IMAGE_SIZE.height;
+      canvas.width = IMAGE_SIZES.to.width;
+      canvas.height = IMAGE_SIZES.to.height;
       const context = canvas.getContext("2d");
       if (!context) return;
 
@@ -49,34 +53,75 @@ const App = () => {
     }
   }, [currentCtx]);
 
+  useEffect(() => {
+    if (diffCanvasRef.current) {
+      diffCanvasRef.current.width = IMAGE_SIZES.to.width;
+      diffCanvasRef.current.height = IMAGE_SIZES.to.height;
+    }
+  }, []);
+
   const createCoButtonClickHandler = (id: number) => () => {
     setCurrentCoId(id);
   };
 
   const handleActionButtonClick = () => {
-    if (!prevImgRef.current || !currentImgRef.current || !diffCanvasRef.current) return;
+    if (!prevImgRef.current || !currentImgRef.current || !diffCanvasRef.current)
+      return;
     if (!prevCtx || !currentCtx) return;
 
     setIsLoading(true);
 
     const prevImg = prevImgRef.current;
-    prevCtx.drawImage(prevImg, 0, 0, 1920, 1080, 0, 0, DEFAULT_IMAGE_SIZE.width, DEFAULT_IMAGE_SIZE.height);
-    const prevImageData = prevCtx.getImageData(0, 0, DEFAULT_IMAGE_SIZE.width, DEFAULT_IMAGE_SIZE.height);
+    prevCtx.drawImage(
+      prevImg,
+      0,
+      0,
+      IMAGE_SIZES.from.width,
+      IMAGE_SIZES.from.height,
+      0,
+      0,
+      IMAGE_SIZES.to.width,
+      IMAGE_SIZES.to.height
+    );
+    const prevImageData = prevCtx.getImageData(
+      0,
+      0,
+      IMAGE_SIZES.to.width,
+      IMAGE_SIZES.to.height
+    );
 
     const currentImg = currentImgRef.current;
-    currentCtx.drawImage(currentImg, 0, 0, 1920, 1080, 0, 0, DEFAULT_IMAGE_SIZE.width, DEFAULT_IMAGE_SIZE.height);
-    const currentImageData = currentCtx.getImageData(0, 0, DEFAULT_IMAGE_SIZE.width, DEFAULT_IMAGE_SIZE.height);
+    currentCtx.drawImage(
+      currentImg,
+      0,
+      0,
+      IMAGE_SIZES.from.width,
+      IMAGE_SIZES.from.height,
+      0,
+      0,
+      IMAGE_SIZES.to.width,
+      IMAGE_SIZES.to.height
+    );
+    const currentImageData = currentCtx.getImageData(
+      0,
+      0,
+      IMAGE_SIZES.to.width,
+      IMAGE_SIZES.to.height
+    );
 
     const diffCtx = diffCanvasRef.current.getContext("2d");
     if (!diffCtx) return;
 
-    const diff = diffCtx.createImageData(DEFAULT_IMAGE_SIZE.width, DEFAULT_IMAGE_SIZE.height);
+    const diff = diffCtx.createImageData(
+      IMAGE_SIZES.to.width,
+      IMAGE_SIZES.to.height
+    );
     pixelmatch(
       prevImageData.data,
       currentImageData.data,
       diff.data,
-      DEFAULT_IMAGE_SIZE.width,
-      DEFAULT_IMAGE_SIZE.height,
+      IMAGE_SIZES.to.width,
+      IMAGE_SIZES.to.height,
       { threshold, diffColor: [216, 0, 50] }
     );
     diffCtx.putImageData(diff, 0, 0);
@@ -94,13 +139,20 @@ const App = () => {
         <ol className={cx("coIds")}>
           {CAMERA_ORIENTATION_IDS.map((id) => (
             <li key={id} className={cx("coId")}>
-              <button disabled={isLoading} className={cx("coButton")} onClick={createCoButtonClickHandler(id)}>
+              <button
+                disabled={isLoading}
+                className={cx("coButton")}
+                onClick={createCoButtonClickHandler(id)}
+              >
                 {`C/O ${id}`}
               </button>
             </li>
           ))}
         </ol>
-        <button className={cx("actionButton")} onClick={handleActionButtonClick}>
+        <button
+          className={cx("actionButton")}
+          onClick={handleActionButtonClick}
+        >
           Get Diff
         </button>
       </div>
@@ -117,11 +169,21 @@ const App = () => {
         />
       </div>
       <div className={cx("imageCards")}>
-        <ImageCard ref={prevImgRef} label="Previous" imageUrl={getImageUrl(ImageLabels.previous)} />
-        <ImageCard ref={currentImgRef} label="Current" imageUrl={getImageUrl(ImageLabels.current)} />
+        <ImageCard
+          ref={prevImgRef}
+          label="Previous"
+          imageUrl={getImageUrl(ImageLabels.previous)}
+        />
+        <ImageCard
+          ref={currentImgRef}
+          label="Current"
+          imageUrl={getImageUrl(ImageLabels.current)}
+        />
       </div>
       <hr />
-      <div className={cx("diffVisualizer")}>{isLoading ? <Loading /> : <DiffVisualizer ref={diffCanvasRef} />}</div>
+      <div className={cx("diffVisualizer")}>
+        {isLoading ? <Loading /> : <DiffVisualizer ref={diffCanvasRef} />}
+      </div>
     </div>
   );
 };

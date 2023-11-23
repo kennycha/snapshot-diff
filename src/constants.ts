@@ -5,7 +5,13 @@ export enum ImageLabels {
   current = 2,
 }
 
-export const DEFAULT_IMAGE_SIZE = {
-  width: 480,
-  height: 270,
+export const IMAGE_SIZES = {
+  from: {
+    width: 1920,
+    height: 1080,
+  },
+  to: {
+    width: 480,
+    height: 270,
+  },
 };
