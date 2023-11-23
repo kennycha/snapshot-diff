@@ -3,16 +3,16 @@ import classNames from "classnames/bind";
 
 const cx = classNames.bind(styles);
 
-const Loading = () => {
+const Empty = () => {
   return (
     <div className={cx("container")}>
-      <img
-        src="/assets/images/loading.jpeg"
-        alt="loading"
-        className={cx("image")}
-      />
+      <div className={cx("inner")}>
+        <p>
+          Click <strong>Get Diff</strong> Button!
+        </p>
+      </div>
     </div>
   );
 };
 
-export default Loading;
+export default Empty;
